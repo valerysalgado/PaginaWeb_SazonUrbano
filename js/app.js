@@ -135,27 +135,20 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => headerCartCountEl.classList.remove("is-bumping"), 300);
     }
 
-    // 2. Barra Flotante Inferior
-    if (cartBarBadgeEl) cartBarBadgeEl.textContent = totalCount;
-    if (cartBarTotalEl) cartBarTotalEl.textContent = formattedTotal;
-    if (cartBarCountLabelEl) {
-      cartBarCountLabelEl.textContent = `Tu Pedido (${totalCount} ${totalCount === 1 ? 'plato' : 'platos'})`;
-    }
-
-    // Botón flotante directo de carrito
+    // 2. Botón Flotante Directo de Carrito
     const floatingCartBadgeEl = document.getElementById("floatingCartBadge");
+    const floatingCartBtnEl = document.getElementById("floatingCartBtn");
     if (floatingCartBadgeEl) {
       floatingCartBadgeEl.textContent = totalCount;
-    }
-
-    if (cartFloatingBarEl) {
       if (totalCount > 0) {
-        cartFloatingBarEl.classList.add("is-visible");
-        document.body.classList.add("has-cart-bar");
+        floatingCartBadgeEl.style.display = "flex";
       } else {
-        cartFloatingBarEl.classList.remove("is-visible");
-        document.body.classList.remove("has-cart-bar");
+        floatingCartBadgeEl.style.display = "none";
       }
+    }
+    if (floatingCartBtnEl) {
+      floatingCartBtnEl.classList.add("is-bumping");
+      setTimeout(() => floatingCartBtnEl.classList.remove("is-bumping"), 300);
     }
 
     // 3. Subtotales en Drawer
