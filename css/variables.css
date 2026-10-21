@@ -1,0 +1,88 @@
+/* ==============================================================================
+   VARIABLES Y SISTEMA DE DISEÑO - SAZÓN URBANO
+   Paleta: Negro Carbón, Crema, Blanco y Naranja Cálido
+   ============================================================================== */
+
+:root {
+  /* --- PALETA DE COLORES PRINCIPAL --- */
+  --color-black-pure: #0a0a0c;
+  --color-black-carbon: #121216;
+  --color-black-surface: #1a1a20;
+  --color-black-card: #212129;
+  --color-black-border: #2e2e38;
+  --color-black-muted: #383844;
+
+  /* Naranja Cálido (Acento de apetito, energía y conversión) */
+  --color-orange-primary: #ff5a1f;
+  --color-orange-hover: #e04810;
+  --color-orange-active: #c23b08;
+  --color-orange-glow: rgba(255, 90, 31, 0.35);
+  --color-orange-subtle: rgba(255, 90, 31, 0.12);
+
+  /* Crema & Cálidos Suaves (Elegancia y balance gastronómico) */
+  --color-cream-light: #fbf7ee;
+  --color-cream-base: #f4ecdc;
+  --color-cream-dark: #e8dcc6;
+  --color-cream-muted: #c9bc9f;
+
+  /* Blanco & Neutrales Claros */
+  --color-white: #ffffff;
+  --color-text-main: #fbf7ee;
+  --color-text-body: #d2c8b8;
+  --color-text-muted: #9c9484;
+  --color-text-dark: #121216;
+
+  /* Acentos de estado & WhatsApp */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-hover: #20bd5a;
+  --color-whatsapp-glow: rgba(37, 211, 102, 0.35);
+  --color-gold: #f59e0b;
+  --color-tag-bg: rgba(245, 158, 11, 0.15);
+
+  /* --- TIPOGRAFÍA --- */
+  --font-heading: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 3.75rem;    /* 60px */
+
+  /* --- BORDES Y RADIOS --- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* --- SOMBRAS Y PROFUNDIDAD --- */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
+  --shadow-orange: 0 10px 25px -3px var(--color-orange-glow);
+  --shadow-whatsapp: 0 10px 25px -3px var(--color-whatsapp-glow);
+
+  /* --- ESPACIADO Y CONTENEDOR --- */
+  --container-max: 1200px;
+  --container-padding: 1.5rem;
+  --section-spacing: 5.5rem;
+
+  /* --- TRANSICIONES SUAVES --- */
+  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* --- Z-INDEX --- */
+  --z-banner: 1000;
+  --z-header: 900;
+  --z-floating: 800;
+  --z-modal: 1100;
+  --z-toast: 1200;
+}
