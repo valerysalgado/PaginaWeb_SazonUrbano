@@ -456,7 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 data-price="${product.price}"
                 data-image="${product.image}">
                 <span>➕</span>
-                <span>Agregar al Pedido • ${formattedPrice}</span>
+                <span>Agregar al Pedido</span>
               </button>
             </div>
           </div>
