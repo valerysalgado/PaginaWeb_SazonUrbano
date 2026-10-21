@@ -262,7 +262,7 @@
   }
 
   .floating-actions {
-    bottom: 16px;
+    bottom: 85px; /* Elevado sobre la marca de agua de Netlify y las barras inferiores del celular */
     right: 16px;
     gap: 0.55rem;
   }

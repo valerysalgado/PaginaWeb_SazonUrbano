@@ -1154,13 +1154,23 @@
 /* --- 12. BOTONES FLOTANTES DE ACCESO RÁPIDO (ESQUINA INFERIOR) --- */
 .floating-actions {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 85px; /* Elevado para despejar marcas de agua de Netlify, barras de navegador y drawers */
+  right: 20px;
   z-index: var(--z-floating);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+}
+
+/* Ocultar drawer/feedback inyectado de Netlify si está activo */
+#netlify-drawer,
+iframe#netlify-drawer,
+[data-netlify-deploy-id],
+.netlify-badge {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .floating-btn {
