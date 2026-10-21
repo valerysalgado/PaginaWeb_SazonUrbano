@@ -262,9 +262,10 @@
   }
 
   .floating-actions {
-    bottom: 72px; /* Se ubican en fila horizontal exactamente por encima del 'Powered by Netlify' */
-    right: 16px;
-    gap: 9px;
+    bottom: 80px !important; /* Se ubican en fila horizontal exactamente por encima del 'Powered by Netlify' */
+    right: 16px !important;
+    flex-direction: row !important;
+    gap: 10px !important;
   }
 
   .floating-btn-whatsapp {
