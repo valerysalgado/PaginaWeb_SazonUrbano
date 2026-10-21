@@ -1154,13 +1154,19 @@
 /* --- 12. BOTONES FLOTANTES DE ACCESO RÁPIDO (ESQUINA INFERIOR) --- */
 .floating-actions {
   position: fixed;
-  bottom: 80px; /* Elevado en fila horizontal para que ambos botones queden claramente sobre Netlify */
+  bottom: 80px; /* Elevado en fila horizontal para que los botones queden claramente sobre Netlify */
   right: 18px;
   z-index: var(--z-floating);
   display: flex !important;
   flex-direction: row !important;
   align-items: center;
   gap: 12px;
+  transition: bottom 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Si la barra del carrito está activa, sube los botones flotantes para evitar cualquier solapamiento */
+body.has-cart-bar .floating-actions {
+  bottom: 160px;
 }
 
 /* Ocultar drawer/feedback inyectado de Netlify si está activo */
@@ -1213,7 +1219,34 @@ iframe#netlify-drawer,
 .floating-btn-purple:hover {
   box-shadow: 0 12px 30px rgba(109, 40, 217, 0.7);
 }
-  box-shadow: 0 12px 30px rgba(109, 40, 217, 0.65);
+
+/* Botón flotante Carrito */
+.floating-btn-cart {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, var(--color-orange-primary) 0%, #e04810 100%);
+  box-shadow: 0 8px 24px rgba(255, 90, 31, 0.5);
+  border: none;
+}
+
+.floating-btn-cart:hover {
+  box-shadow: 0 12px 30px rgba(255, 90, 31, 0.75);
+}
+
+.floating-cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--color-white);
+  color: var(--color-orange-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  min-width: 18px;
+  text-align: center;
 }
 
 /* Pulso continuo */
@@ -1408,7 +1441,18 @@ iframe#netlify-drawer,
   z-index: var(--z-floating);
   opacity: 0;
   visibility: hidden;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, visibility 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, visibility 0.3s ease, border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.cart-floating-bar:hover {
+  border-color: var(--color-orange-primary);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 30px rgba(255, 90, 31, 0.35);
+}
+
+.cart-floating-bar:active {
+  transform: translateX(-50%) scale(0.99);
 }
 
 .cart-floating-bar.is-visible {

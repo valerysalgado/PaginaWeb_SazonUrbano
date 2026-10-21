@@ -266,6 +266,11 @@
     right: 16px !important;
     flex-direction: row !important;
     gap: 10px !important;
+    transition: bottom 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  body.has-cart-bar .floating-actions {
+    bottom: 150px !important;
   }
 
   .floating-btn-whatsapp {
@@ -280,9 +285,15 @@
     font-size: 1.25rem;
   }
 
+  .floating-btn-cart {
+    width: 46px;
+    height: 46px;
+    font-size: 1.35rem;
+  }
+
   /* Carrito flotante en móviles */
   .cart-floating-bar {
-    bottom: 80px;
+    bottom: 72px;
     width: calc(100% - 24px);
     max-width: 460px;
     padding: 0.75rem 1rem;

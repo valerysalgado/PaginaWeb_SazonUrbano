@@ -142,11 +142,19 @@ document.addEventListener("DOMContentLoaded", () => {
       cartBarCountLabelEl.textContent = `Tu Pedido (${totalCount} ${totalCount === 1 ? 'plato' : 'platos'})`;
     }
 
+    // Botón flotante directo de carrito
+    const floatingCartBadgeEl = document.getElementById("floatingCartBadge");
+    if (floatingCartBadgeEl) {
+      floatingCartBadgeEl.textContent = totalCount;
+    }
+
     if (cartFloatingBarEl) {
       if (totalCount > 0) {
         cartFloatingBarEl.classList.add("is-visible");
+        document.body.classList.add("has-cart-bar");
       } else {
         cartFloatingBarEl.classList.remove("is-visible");
+        document.body.classList.remove("has-cart-bar");
       }
     }
 
@@ -221,6 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartDrawerOverlay = document.getElementById("cartDrawerOverlay");
   const openCartDrawerBtn = document.getElementById("openCartDrawerBtn");
   const headerCartBtn = document.getElementById("headerCartBtn");
+  const floatingCartBtn = document.getElementById("floatingCartBtn");
   const closeCartDrawerBtn = document.getElementById("closeCartDrawerBtn");
   const clearCartBtn = document.getElementById("clearCartBtn");
 
@@ -236,8 +245,23 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = "";
   };
 
-  if (openCartDrawerBtn) openCartDrawerBtn.addEventListener("click", openCartDrawer);
+  // Toda la barra flotante abre el carrito al hacer clic en cualquier parte de ella
+  if (cartFloatingBarEl) {
+    cartFloatingBarEl.addEventListener("click", () => {
+      openCartDrawer();
+    });
+  }
+
+  // El botón específico "Ver Pedido" también abre el carrito
+  if (openCartDrawerBtn) {
+    openCartDrawerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openCartDrawer();
+    });
+  }
+
   if (headerCartBtn) headerCartBtn.addEventListener("click", openCartDrawer);
+  if (floatingCartBtn) floatingCartBtn.addEventListener("click", openCartDrawer);
   if (closeCartDrawerBtn) closeCartDrawerBtn.addEventListener("click", closeCartDrawer);
 
   if (cartDrawerOverlay) {
