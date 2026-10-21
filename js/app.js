@@ -3,7 +3,8 @@
  * SAZÓN URBANO - LÓGICA PRINCIPAL DE LA APLICACIÓN (JS)
  * ==============================================================================
  * Maneja el renderizado dinámico desde config.js, filtros de categorías,
- * botones interactivos de WhatsApp, menú responsive, acordeón FAQ y modales.
+ * sistema de carrito de compras, barra flotante, drawer lateral de pedido,
+ * validación de datos de entrega y generación de pedidos a WhatsApp.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,7 +24,245 @@ document.addEventListener("DOMContentLoaded", () => {
     }).format(amount) + " COP";
   };
 
-  // --- 2. GESTIÓN CENTRALIZADA DE ENLACES DE WHATSAPP ---
+  // --- 2. SISTEMA DE CARRITO DE COMPRAS (ESTADO Y PERSISTENCIA) ---
+  const CART_STORAGE_KEY = "sazon_urbano_cart_items";
+  let cart = [];
+
+  try {
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+    if (savedCart) cart = JSON.parse(savedCart);
+  } catch (err) {
+    console.warn("No se pudo cargar el carrito previo:", err);
+    cart = [];
+  }
+
+  const saveCart = () => {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (err) {
+      console.warn("No se pudo guardar el carrito:", err);
+    }
+    updateCartUI();
+  };
+
+  const getCartTotal = () => {
+    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  };
+
+  const getCartCount = () => {
+    return cart.reduce((count, item) => count + item.quantity, 0);
+  };
+
+  // Toast flotante de notificación
+  const cartToast = document.getElementById("cartToast");
+  const cartToastMessage = document.getElementById("cartToastMessage");
+  let toastTimer = null;
+
+  const showCartToast = (message) => {
+    if (!cartToast) return;
+    if (cartToastMessage) cartToastMessage.textContent = message;
+    cartToast.classList.add("is-show");
+
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      cartToast.classList.remove("is-show");
+    }, 2400);
+  };
+
+  // Agregar producto al carrito
+  const addToCart = (product) => {
+    const existingIndex = cart.findIndex(item => String(item.id) === String(product.id));
+    if (existingIndex > -1) {
+      cart[existingIndex].quantity += 1;
+    } else {
+      cart.push({
+        id: String(product.id),
+        name: product.name,
+        price: Number(product.price),
+        image: product.image,
+        quantity: 1
+      });
+    }
+    saveCart();
+    showCartToast(`¡${product.name} agregado al pedido! 🛒`);
+  };
+
+  // Actualizar cantidad
+  const updateQuantity = (id, delta) => {
+    const index = cart.findIndex(item => String(item.id) === String(id));
+    if (index > -1) {
+      cart[index].quantity += delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      saveCart();
+    }
+  };
+
+  // Eliminar producto
+  const removeFromCart = (id) => {
+    cart = cart.filter(item => String(item.id) !== String(id));
+    saveCart();
+  };
+
+  // Vaciar carrito
+  const clearCart = () => {
+    cart = [];
+    saveCart();
+    showCartToast("Se vació el pedido 🗑️");
+  };
+
+  // --- 3. ACTUALIZACIÓN VISUAL DEL CARRITO ---
+  const headerCartCountEl = document.getElementById("headerCartCount");
+  const cartBarBadgeEl = document.getElementById("cartBarBadge");
+  const cartBarTotalEl = document.getElementById("cartBarTotal");
+  const cartBarCountLabelEl = document.getElementById("cartBarCountLabel");
+  const cartFloatingBarEl = document.getElementById("cartFloatingBar");
+  const cartItemsListEl = document.getElementById("cartItemsList");
+  const cartSubtotalEl = document.getElementById("cartSubtotal");
+  const cartGrandTotalEl = document.getElementById("cartGrandTotal");
+  const cartDrawerCountEl = document.getElementById("cartDrawerCount");
+
+  const updateCartUI = () => {
+    const totalCount = getCartCount();
+    const totalPrice = getCartTotal();
+    const formattedTotal = formatCOP(totalPrice);
+
+    // 1. Contador en Cabecera
+    if (headerCartCountEl) {
+      headerCartCountEl.textContent = totalCount;
+      headerCartCountEl.classList.add("is-bumping");
+      setTimeout(() => headerCartCountEl.classList.remove("is-bumping"), 300);
+    }
+
+    // 2. Barra Flotante Inferior
+    if (cartBarBadgeEl) cartBarBadgeEl.textContent = totalCount;
+    if (cartBarTotalEl) cartBarTotalEl.textContent = formattedTotal;
+    if (cartBarCountLabelEl) {
+      cartBarCountLabelEl.textContent = `Tu Pedido (${totalCount} ${totalCount === 1 ? 'plato' : 'platos'})`;
+    }
+
+    if (cartFloatingBarEl) {
+      if (totalCount > 0) {
+        cartFloatingBarEl.classList.add("is-visible");
+      } else {
+        cartFloatingBarEl.classList.remove("is-visible");
+      }
+    }
+
+    // 3. Subtotales en Drawer
+    if (cartSubtotalEl) cartSubtotalEl.textContent = formattedTotal;
+    if (cartGrandTotalEl) cartGrandTotalEl.textContent = formattedTotal;
+    if (cartDrawerCountEl) {
+      cartDrawerCountEl.textContent = `${totalCount} ${totalCount === 1 ? 'plato seleccionado' : 'platos seleccionados'}`;
+    }
+
+    // 4. Lista de Productos en el Drawer
+    if (cartItemsListEl) {
+      if (cart.length === 0) {
+        cartItemsListEl.innerHTML = `
+          <div class="cart-empty-state">
+            <div class="cart-empty-icon">🍽️</div>
+            <h4 class="cart-empty-title">Tu pedido está vacío</h4>
+            <p class="cart-empty-desc">Explora el menú y agrega tus hamburguesas y salchipapas favoritas.</p>
+            <a href="#menu" class="btn btn-outline btn-sm" id="emptyCartExploreBtn">Explorar Menú</a>
+          </div>
+        `;
+        const exploreBtn = document.getElementById("emptyCartExploreBtn");
+        if (exploreBtn) {
+          exploreBtn.addEventListener("click", () => closeCartDrawer());
+        }
+      } else {
+        cartItemsListEl.innerHTML = cart.map(item => {
+          const itemSubtotal = formatCOP(item.price * item.quantity);
+          return `
+            <div class="cart-item" data-id="${item.id}">
+              <img src="${item.image}" alt="${item.name}" class="cart-item-img" loading="lazy">
+              <div class="cart-item-info">
+                <h5 class="cart-item-title">${item.name}</h5>
+                <span class="cart-item-unit-price">${formatCOP(item.price)} • Total: ${itemSubtotal}</span>
+              </div>
+              <div class="cart-item-actions">
+                <button type="button" class="cart-qty-btn btn-qty-minus" data-id="${item.id}" aria-label="Disminuir cantidad">−</button>
+                <span class="cart-qty-number">${item.quantity}</span>
+                <button type="button" class="cart-qty-btn btn-qty-plus" data-id="${item.id}" aria-label="Aumentar cantidad">+</button>
+              </div>
+              <button type="button" class="cart-item-delete-btn btn-delete-item" data-id="${item.id}" title="Eliminar plato" aria-label="Eliminar ${item.name}">🗑️</button>
+            </div>
+          `;
+        }).join("");
+
+        // Eventos en botones de cantidad
+        cartItemsListEl.querySelectorAll(".btn-qty-minus").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            updateQuantity(id, -1);
+          });
+        });
+
+        cartItemsListEl.querySelectorAll(".btn-qty-plus").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            updateQuantity(id, 1);
+          });
+        });
+
+        cartItemsListEl.querySelectorAll(".btn-delete-item").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            removeFromCart(id);
+          });
+        });
+      }
+    }
+  };
+
+  // --- 4. CONTROL DEL DRAWER / PANEL LATERAL DEL CARRITO ---
+  const cartDrawerOverlay = document.getElementById("cartDrawerOverlay");
+  const openCartDrawerBtn = document.getElementById("openCartDrawerBtn");
+  const headerCartBtn = document.getElementById("headerCartBtn");
+  const closeCartDrawerBtn = document.getElementById("closeCartDrawerBtn");
+  const clearCartBtn = document.getElementById("clearCartBtn");
+
+  const openCartDrawer = () => {
+    if (!cartDrawerOverlay) return;
+    cartDrawerOverlay.classList.add("is-open");
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeCartDrawer = () => {
+    if (!cartDrawerOverlay) return;
+    cartDrawerOverlay.classList.remove("is-open");
+    document.body.style.overflow = "";
+  };
+
+  if (openCartDrawerBtn) openCartDrawerBtn.addEventListener("click", openCartDrawer);
+  if (headerCartBtn) headerCartBtn.addEventListener("click", openCartDrawer);
+  if (closeCartDrawerBtn) closeCartDrawerBtn.addEventListener("click", closeCartDrawer);
+
+  if (cartDrawerOverlay) {
+    cartDrawerOverlay.addEventListener("click", (e) => {
+      if (e.target === cartDrawerOverlay) closeCartDrawer();
+    });
+  }
+
+  if (clearCartBtn) {
+    clearCartBtn.addEventListener("click", () => {
+      if (cart.length === 0) return;
+      if (confirm("¿Estás seguro de que deseas vaciar todos los platos de tu pedido?")) {
+        clearCart();
+      }
+    });
+  }
+
+  // Tecla Escape cierra el carrito
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && cartDrawerOverlay && cartDrawerOverlay.classList.contains("is-open")) {
+      closeCartDrawer();
+    }
+  });
+
+  // --- 5. GESTIÓN CENTRALIZADA DE ENLACES DE WHATSAPP ---
   const handleWhatsAppAction = (textMessage) => {
     const phone = config.business.whatsappNumber || "573001234567";
     const encodedText = encodeURIComponent(textMessage);
@@ -37,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // --- 3. MODAL DE DEMOSTRACIÓN COMERCIAL ---
+  // Modal de demostración comercial
   const modalOverlay = document.getElementById("demoModal");
   const modalTargetUrlBtn = document.getElementById("modalProceedBtn");
   const modalCloseBtns = document.querySelectorAll("[data-close-modal]");
@@ -45,7 +284,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const showDemoModal = (targetUrl, textSample) => {
     if (!modalOverlay) return;
     
-    // Configurar enlace del botón de prueba
     if (modalTargetUrlBtn) {
       modalTargetUrlBtn.onclick = () => {
         window.open(targetUrl, "_blank", "noopener,noreferrer");
@@ -53,7 +291,6 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
-    // Actualizar vista previa del mensaje en el modal
     const previewEl = document.getElementById("modalMessagePreview");
     if (previewEl) {
       previewEl.textContent = textSample;
@@ -76,14 +313,75 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Escuchar tecla Escape para cerrar modal
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modalOverlay && modalOverlay.classList.contains("is-active")) {
-      closeDemoModal();
-    }
-  });
+  // --- 6. PROCESAMIENTO Y ENVÍO DEL PEDIDO POR WHATSAPP ---
+  const submitOrderWhatsAppBtn = document.getElementById("submitOrderWhatsAppBtn");
+  const orderCustomerNameInput = document.getElementById("orderCustomerName");
+  const orderCustomerAddressInput = document.getElementById("orderCustomerAddress");
+  const orderPaymentMethodSelect = document.getElementById("orderPaymentMethod");
+  const orderNotesTextarea = document.getElementById("orderNotes");
 
-  // --- 4. RENDERIZADO DEL MENÚ Y FILTRADO POR CATEGORÍAS ---
+  if (submitOrderWhatsAppBtn) {
+    submitOrderWhatsAppBtn.addEventListener("click", () => {
+      // 1. Validar que el carrito no esté vacío
+      if (cart.length === 0) {
+        alert("Tu carrito está vacío. Agrega al menos un plato o combo antes de enviar.");
+        return;
+      }
+
+      // 2. Validar campos obligatorios
+      const customerName = (orderCustomerNameInput ? orderCustomerNameInput.value : "").trim();
+      const customerAddress = (orderCustomerAddressInput ? orderCustomerAddressInput.value : "").trim();
+      const paymentMethod = orderPaymentMethodSelect ? orderPaymentMethodSelect.value : "Nequi";
+      const notes = (orderNotesTextarea ? orderNotesTextarea.value : "").trim();
+
+      if (!customerName) {
+        if (orderCustomerNameInput) {
+          orderCustomerNameInput.focus();
+          orderCustomerNameInput.style.borderColor = "#ef4444";
+          setTimeout(() => { orderCustomerNameInput.style.borderColor = ""; }, 2500);
+        }
+        alert("Por favor ingresa tu nombre para que sepamos a quién entregar el pedido.");
+        return;
+      }
+
+      if (!customerAddress) {
+        if (orderCustomerAddressInput) {
+          orderCustomerAddressInput.focus();
+          orderCustomerAddressInput.style.borderColor = "#ef4444";
+          setTimeout(() => { orderCustomerAddressInput.style.borderColor = ""; }, 2500);
+        }
+        alert("Por favor ingresa tu dirección y barrio en Cartagena para coordinar el domicilio.");
+        return;
+      }
+
+      // 3. Formatear la lista limpia de productos
+      const itemsFormatted = cart.map(item => {
+        const itemTotal = formatCOP(item.price * item.quantity);
+        return `• ${item.quantity}x ${item.name} (${itemTotal})`;
+      }).join("\n");
+
+      const grandTotal = formatCOP(getCartTotal());
+
+      // 4. Construir el mensaje completo de WhatsApp
+      let whatsappOrderMessage = `¡Hola ${config.business.name}! 🍔 Quiero realizar el siguiente pedido:\n\n`;
+      whatsappOrderMessage += `📋 *DETALLE DEL PEDIDO:*\n${itemsFormatted}\n\n`;
+      whatsappOrderMessage += `💰 *TOTAL A PAGAR:* ${grandTotal}\n\n`;
+      whatsappOrderMessage += `🛵 *DATOS DE ENTREGA (Cartagena):*\n`;
+      whatsappOrderMessage += `• *Cliente:* ${customerName}\n`;
+      whatsappOrderMessage += `• *Dirección / Barrio:* ${customerAddress}\n`;
+      whatsappOrderMessage += `• *Método de Pago:* ${paymentMethod}\n`;
+      if (notes) {
+        whatsappOrderMessage += `• *Notas / Aclaraciones:* ${notes}\n`;
+      }
+      whatsappOrderMessage += `\n¿Me confirman tiempo estimado de entrega y costo del domicilio? ¡Muchas gracias!`;
+
+      // 5. Cerrar el carrito y abrir WhatsApp
+      closeCartDrawer();
+      handleWhatsAppAction(whatsappOrderMessage);
+    });
+  }
+
+  // --- 7. RENDERIZADO DEL MENÚ Y FILTRADO POR CATEGORÍAS ---
   const filtersContainer = document.getElementById("menuFilters");
   const productsContainer = document.getElementById("productsGrid");
 
@@ -112,7 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Renderizar productos
+  // Renderizar productos con botón «Agregar al pedido» con precio visible
   const renderProducts = (categoryFilter = "all") => {
     if (!productsContainer || !config.products) return;
 
@@ -152,11 +450,13 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="product-footer">
               <button 
                 type="button" 
-                class="btn btn-whatsapp btn-full btn-order-product" 
+                class="btn btn-primary btn-full btn-add-cart" 
+                data-id="${product.id}" 
                 data-name="${product.name}" 
-                data-price="${formattedPrice}">
-                <span>💬</span>
-                <span>Pedir por WhatsApp</span>
+                data-price="${product.price}"
+                data-image="${product.image}">
+                <span>➕</span>
+                <span>Agregar al Pedido • ${formattedPrice}</span>
               </button>
             </div>
           </div>
@@ -164,13 +464,15 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }).join("");
 
-    // Adjuntar evento de pedido a cada botón de producto
-    productsContainer.querySelectorAll(".btn-order-product").forEach(btn => {
+    // Adjuntar evento de "Agregar al pedido" a cada botón
+    productsContainer.querySelectorAll(".btn-add-cart").forEach(btn => {
       btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-id");
         const name = btn.getAttribute("data-name");
-        const price = btn.getAttribute("data-price");
-        const message = config.whatsappMessages.orderProduct(name, price);
-        handleWhatsAppAction(message);
+        const price = Number(btn.getAttribute("data-price"));
+        const image = btn.getAttribute("data-image");
+
+        addToCart({ id, name, price, image });
       });
     });
   };
@@ -178,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Render inicial del catálogo
   renderProducts("all");
 
-  // --- 5. RENDERIZADO DE PROMOCIONES ---
+  // --- 8. RENDERIZADO DE PROMOCIONES CON BOTÓN «AGREGAR AL PEDIDO» ---
   const promosContainer = document.getElementById("promosGrid");
   if (promosContainer && config.promotions) {
     promosContainer.innerHTML = config.promotions.map(promo => {
@@ -206,28 +508,32 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <button 
               type="button" 
-              class="btn btn-primary btn-full btn-order-promo" 
-              data-title="${promo.title}" 
-              data-price="${formattedPromo}">
-              <span>🔥</span>
-              <span>${promo.ctaText}</span>
+              class="btn btn-primary btn-full btn-add-promo" 
+              data-id="promo-${promo.id}" 
+              data-name="${promo.title}" 
+              data-price="${promo.promoPrice}"
+              data-image="${promo.image}">
+              <span>➕</span>
+              <span>Agregar Combo • ${formattedPromo}</span>
             </button>
           </div>
         </article>
       `;
     }).join("");
 
-    promosContainer.querySelectorAll(".btn-order-promo").forEach(btn => {
+    promosContainer.querySelectorAll(".btn-add-promo").forEach(btn => {
       btn.addEventListener("click", () => {
-        const title = btn.getAttribute("data-title");
-        const price = btn.getAttribute("data-price");
-        const message = config.whatsappMessages.promoOrder(title, price);
-        handleWhatsAppAction(message);
+        const id = btn.getAttribute("data-id");
+        const name = btn.getAttribute("data-name");
+        const price = Number(btn.getAttribute("data-price"));
+        const image = btn.getAttribute("data-image");
+
+        addToCart({ id, name, price, image });
       });
     });
   }
 
-  // --- 6. RENDERIZADO DE VENTAJAS COMPETITIVAS ---
+  // --- 9. RENDERIZADO DE VENTAJAS COMPETITIVAS ---
   const advantagesContainer = document.getElementById("advantagesGrid");
   if (advantagesContainer && config.advantages) {
     advantagesContainer.innerHTML = config.advantages.map(adv => `
@@ -239,7 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
     `).join("");
   }
 
-  // --- 7. RENDERIZADO DE HORARIOS Y UBICACIÓN ---
+  // --- 10. RENDERIZADO DE HORARIOS Y UBICACIÓN ---
   const scheduleListContainer = document.getElementById("scheduleList");
   if (scheduleListContainer && config.schedule) {
     scheduleListContainer.innerHTML = config.schedule.map(item => `
@@ -270,7 +576,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const deliveryTimeEl = document.getElementById("deliveryTimeInfo");
   if (deliveryTimeEl) deliveryTimeEl.textContent = config.business.deliveryTime;
 
-  // --- 8. RENDERIZADO DEL ACORDEÓN DE PREGUNTAS FRECUENTES (FAQ) ---
+  // --- 11. RENDERIZADO DEL ACORDEÓN DE PREGUNTAS FRECUENTES (FAQ) ---
   const faqContainer = document.getElementById("faqAccordion");
   if (faqContainer && config.faqs) {
     faqContainer.innerHTML = config.faqs.map((faq, index) => `
@@ -301,7 +607,6 @@ document.addEventListener("DOMContentLoaded", () => {
       questionBtn.addEventListener("click", () => {
         const isOpen = item.classList.contains("is-open");
 
-        // Cerrar otros elementos
         faqItems.forEach(otherItem => {
           if (otherItem !== item) {
             otherItem.classList.remove("is-open");
@@ -312,7 +617,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
 
-        // Alternar el actual
         if (isOpen) {
           item.classList.remove("is-open");
           questionBtn.setAttribute("aria-expanded", "false");
@@ -326,8 +630,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- 9. BOTONES GENERALES DE WHATSAPP ---
-  // Botones de llamada a la acción en el Hero, Header y Botón Flotante
+  // --- 12. BOTONES GENERALES DE WHATSAPP ---
   const generalContactButtons = document.querySelectorAll("[data-action='contact-whatsapp']");
   generalContactButtons.forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -336,7 +639,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Enlace para saber cómo adaptar la plantilla en el banner superior
   const bannerLearnMore = document.getElementById("bannerLearnMore");
   if (bannerLearnMore) {
     bannerLearnMore.addEventListener("click", (e) => {
@@ -348,7 +650,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- 10. MENÚ MÓVIL (HAMBURGER TOGGLE) ---
+  // --- 13. MENÚ MÓVIL (HAMBURGER TOGGLE) ---
   const mobileToggleBtn = document.getElementById("mobileToggle");
   const navMenu = document.getElementById("navMenu");
 
@@ -361,7 +663,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     mobileToggleBtn.addEventListener("click", toggleMobileMenu);
 
-    // Cerrar al hacer clic en un enlace de navegación
     navMenu.querySelectorAll(".nav-link").forEach(link => {
       link.addEventListener("click", () => {
         if (navMenu.classList.contains("is-open")) {
@@ -370,7 +671,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Cerrar al hacer clic fuera del menú
     document.addEventListener("click", (e) => {
       if (navMenu.classList.contains("is-open") && 
           !navMenu.contains(e.target) && 
@@ -380,7 +680,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- 11. EFECTO SCROLL DEL HEADER ---
+  // --- 14. EFECTO SCROLL DEL HEADER ---
   const siteHeader = document.querySelector(".site-header");
   const handleScroll = () => {
     if (!siteHeader) return;
@@ -393,7 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("scroll", handleScroll, { passive: true });
   handleScroll();
 
-  // --- 12. ANIMACIONES AL HACER SCROLL (INTERSECTION OBSERVER) ---
+  // --- 15. ANIMACIONES AL HACER SCROLL (INTERSECTION OBSERVER) ---
   const animElements = document.querySelectorAll(".animate-on-scroll");
   if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver((entries) => {
@@ -410,11 +710,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     animElements.forEach(el => observer.observe(el));
   } else {
-    // Fallback para navegadores antiguos
     animElements.forEach(el => el.classList.add("is-visible"));
   }
 
-  // --- 13. RESALTAR ENLACE DE NAVEGACIÓN ACTIVO ---
+  // --- 16. RESALTAR ENLACE DE NAVEGACIÓN ACTIVO ---
   const sections = document.querySelectorAll("section[id]");
   const navLinks = document.querySelectorAll(".nav-link");
 
@@ -437,4 +736,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
   window.addEventListener("scroll", highlightNavOnScroll, { passive: true });
+
+  // Inicializar UI del carrito al cargar
+  updateCartUI();
 });

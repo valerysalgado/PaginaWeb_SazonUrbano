@@ -24,11 +24,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Hojas de Estilo en Cascada Modulares (Cache-busting v3.0) -->
-  <link rel="stylesheet" href="css/variables.css?v=3.0">
-  <link rel="stylesheet" href="css/styles.css?v=3.0">
-  <link rel="stylesheet" href="css/components.css?v=3.0">
-  <link rel="stylesheet" href="css/responsive.css?v=3.0">
+  <!-- Hojas de Estilo en Cascada Modulares (Cache-busting v4.0) -->
+  <link rel="stylesheet" href="css/variables.css?v=4.0">
+  <link rel="stylesheet" href="css/styles.css?v=4.0">
+  <link rel="stylesheet" href="css/components.css?v=4.0">
+  <link rel="stylesheet" href="css/responsive.css?v=4.0">
 
   <!-- Favicon SVG en línea -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
@@ -84,6 +84,16 @@
 
         <!-- Botones de Acción en Cabecera -->
         <div class="header-actions">
+          <!-- Botón de Carrito en Cabecera -->
+          <button 
+            type="button" 
+            class="header-cart-btn" 
+            id="headerCartBtn" 
+            aria-label="Abrir carrito de compras">
+            <span class="header-cart-icon">🛒</span>
+            <span class="header-cart-count" id="headerCartCount">0</span>
+          </button>
+
           <button 
             type="button" 
             class="btn btn-whatsapp btn-sm header-whatsapp-btn" 
@@ -484,7 +494,130 @@
   </footer>
 
   <!-- ==============================================================================
-       11. BOTONES FLOTANTES DE ACCESO RÁPIDO (DESPEJADOS DE NETLIFY)
+       11. BARRA FLOTANTE DEL CARRITO DE COMPRAS (FIJADA ABAJO)
+       ============================================================================== -->
+  <aside class="cart-floating-bar" id="cartFloatingBar" aria-label="Resumen flotante de tu pedido">
+    <div class="cart-bar-left">
+      <div class="cart-bar-icon-box">
+        <span class="cart-bar-icon">🛒</span>
+        <span class="cart-bar-badge" id="cartBarBadge">0</span>
+      </div>
+      <div class="cart-bar-text">
+        <span class="cart-bar-title" id="cartBarCountLabel">Tu Pedido (0 platos)</span>
+        <span class="cart-bar-total" id="cartBarTotal">$ 0 COP</span>
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm cart-bar-btn" id="openCartDrawerBtn">
+      <span>Ver Pedido</span>
+      <span>→</span>
+    </button>
+  </aside>
+
+  <!-- ==============================================================================
+       12. PANEL LATERAL / MODAL DESPLEGABLE DEL CARRITO DE COMPRAS
+       ============================================================================== -->
+  <div class="cart-drawer-overlay" id="cartDrawerOverlay" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle">
+    <div class="cart-drawer">
+      <!-- Encabezado del carrito -->
+      <div class="cart-drawer-header">
+        <div class="cart-drawer-title-box">
+          <span class="cart-drawer-icon">🛒</span>
+          <div>
+            <h3 class="cart-drawer-title" id="cartDrawerTitle">Tu Pedido</h3>
+            <span class="cart-drawer-count" id="cartDrawerCount">0 platos seleccionados</span>
+          </div>
+        </div>
+        <div class="cart-drawer-header-actions">
+          <button type="button" class="cart-clear-btn" id="clearCartBtn" title="Vaciar carrito" aria-label="Vaciar carrito">
+            🗑️ Vaciar
+          </button>
+          <button type="button" class="cart-drawer-close" id="closeCartDrawerBtn" aria-label="Cerrar carrito">✕</button>
+        </div>
+      </div>
+
+      <!-- Contenido del Carrito (Scrollable) -->
+      <div class="cart-drawer-body">
+        <!-- Lista de productos elegidos -->
+        <div class="cart-items-list" id="cartItemsList">
+          <!-- Renderizado dinámicamente -->
+        </div>
+
+        <!-- Formulario de datos básicos de entrega -->
+        <div class="cart-delivery-section" id="cartDeliverySection">
+          <h4 class="cart-section-subtitle">📍 Datos de Entrega en Cartagena</h4>
+          
+          <div class="cart-form-group">
+            <label for="orderCustomerName" class="cart-form-label">Nombre de quien recibe *</label>
+            <input 
+              type="text" 
+              id="orderCustomerName" 
+              class="cart-form-input" 
+              placeholder="Ej: Carlos Mendoza" 
+              required>
+          </div>
+
+          <div class="cart-form-group">
+            <label for="orderCustomerAddress" class="cart-form-label">Dirección y Barrio en Cartagena *</label>
+            <input 
+              type="text" 
+              id="orderCustomerAddress" 
+              class="cart-form-input" 
+              placeholder="Ej: Calle del Arsenal #10-25, Getsemaní" 
+              required>
+          </div>
+
+          <div class="cart-form-group">
+            <label for="orderPaymentMethod" class="cart-form-label">Método de Pago Preferido *</label>
+            <select id="orderPaymentMethod" class="cart-form-select">
+              <option value="Nequi">📱 Nequi (Transferencia directa)</option>
+              <option value="Daviplata">💳 Daviplata</option>
+              <option value="Bancolombia">🏦 Bancolombia (Transferencia / QR)</option>
+              <option value="Efectivo contra entrega">💵 Efectivo contra entrega</option>
+              <option value="Datáfono contra entrega">💳 Datáfono contra entrega (Tarjetas)</option>
+            </select>
+          </div>
+
+          <div class="cart-form-group">
+            <label for="orderNotes" class="cart-form-label">Notas o Aclaraciones (Opcional)</label>
+            <textarea 
+              id="orderNotes" 
+              class="cart-form-textarea" 
+              rows="2" 
+              placeholder="Ej: Sin cebolla en la burger, salsas por separado, apto 402..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer del Carrito con Totales y Botón de WhatsApp -->
+      <div class="cart-drawer-footer">
+        <div class="cart-totals-breakdown">
+          <div class="cart-total-row">
+            <span>Subtotal platos:</span>
+            <span id="cartSubtotal">$ 0 COP</span>
+          </div>
+          <div class="cart-total-row cart-total-highlight">
+            <span>Total a pagar:</span>
+            <span class="cart-grand-total" id="cartGrandTotal">$ 0 COP</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-whatsapp btn-full btn-lg" id="submitOrderWhatsAppBtn">
+          <span>💬</span>
+          <span>Enviar Pedido por WhatsApp</span>
+        </button>
+        <span class="cart-secure-badge">🔒 Pedido directo a cocina sin intermediarios</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast flotante de notificación al agregar -->
+  <div class="cart-toast" id="cartToast" role="alert" aria-live="polite">
+    <span class="cart-toast-icon">✅</span>
+    <span class="cart-toast-message" id="cartToastMessage">¡Plato agregado al pedido!</span>
+  </div>
+
+  <!-- ==============================================================================
+       13. BOTONES FLOTANTES DE ACCESO RÁPIDO (DESPEJADOS DE NETLIFY)
        ============================================================================== -->
   <aside class="floating-actions" aria-label="Canales directos de atención">
     <!-- Botón flotante Morado (Asistencia / Dudas Rápidas) -->
@@ -542,8 +675,8 @@
     </div>
   </div>
 
-  <!-- Scripts JavaScript (Cache-busting v3.0) -->
-  <script src="js/config.js?v=3.0"></script>
-  <script src="js/app.js?v=3.0"></script>
+  <!-- Scripts JavaScript (Cache-busting v4.0) -->
+  <script src="js/config.js?v=4.0"></script>
+  <script src="js/app.js?v=4.0"></script>
 </body>
 </html>
