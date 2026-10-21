@@ -1151,15 +1151,16 @@
   color: var(--color-orange-primary);
 }
 
-/* --- 12. BOTÓN FLOTANTE PERMANENTE DE WHATSAPP --- */
+/* --- 12. BOTONES FLOTANTES DE ACCESO RÁPIDO (ESQUINA INFERIOR) --- */
 .floating-actions {
   position: fixed;
-  bottom: 75px; /* Ubicado exactamente por encima de 'Powered by Netlify' sin taparse */
+  bottom: 75px; /* Elevado en fila horizontal para que ambos botones queden sobre Netlify */
   right: 18px;
   z-index: var(--z-floating);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  gap: 10px;
 }
 
 /* Ocultar drawer/feedback inyectado de Netlify si está activo */
@@ -1173,14 +1174,11 @@ iframe#netlify-drawer,
 }
 
 .floating-btn {
-  width: 58px;
-  height: 58px;
   border-radius: 50%;
   color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
   position: relative;
   text-decoration: none;
   transition: transform var(--transition-bounce), box-shadow var(--transition-fast);
@@ -1192,6 +1190,9 @@ iframe#netlify-drawer,
 }
 
 .floating-btn-whatsapp {
+  width: 56px;
+  height: 56px;
+  font-size: 1.7rem;
   background: linear-gradient(135deg, #25d366 0%, #1ea952 100%);
   box-shadow: 0 10px 28px rgba(37, 211, 102, 0.55);
 }
@@ -1200,14 +1201,18 @@ iframe#netlify-drawer,
   box-shadow: 0 14px 34px rgba(37, 211, 102, 0.75);
 }
 
-/* Botón flotante Morado (Asistencia / Dudas Rápidas) */
+/* Botón flotante Morado */
 .floating-btn-purple {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-  box-shadow: 0 8px 24px rgba(109, 40, 217, 0.45);
+  width: 48px;
+  height: 48px;
   font-size: 1.35rem;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  box-shadow: 0 8px 24px rgba(109, 40, 217, 0.5);
 }
 
 .floating-btn-purple:hover {
+  box-shadow: 0 12px 30px rgba(109, 40, 217, 0.7);
+}
   box-shadow: 0 12px 30px rgba(109, 40, 217, 0.65);
 }
 
