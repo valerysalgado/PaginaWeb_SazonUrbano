@@ -262,19 +262,14 @@
   }
 
   .floating-actions {
-    bottom: 85px; /* Elevado sobre la marca de agua de Netlify y las barras inferiores del celular */
+    bottom: 72px; /* Se ubica exactamente por encima del 'Powered by Netlify' sin taparse */
     right: 16px;
-    gap: 0.55rem;
   }
 
   .floating-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 1.45rem;
-  }
-
-  .floating-btn-purple {
-    font-size: 1.25rem;
+    width: 52px;
+    height: 52px;
+    font-size: 1.6rem;
   }
 }
 

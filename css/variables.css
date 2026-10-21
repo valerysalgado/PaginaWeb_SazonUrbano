@@ -82,7 +82,7 @@
   /* --- Z-INDEX --- */
   --z-banner: 1000;
   --z-header: 900;
-  --z-floating: 800;
-  --z-modal: 1100;
-  --z-toast: 1200;
+  --z-floating: 9999;
+  --z-modal: 10000;
+  --z-toast: 11000;
 }
