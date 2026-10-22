@@ -57,6 +57,8 @@
   position: sticky;
   top: 0;
   width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   z-index: var(--z-header);
   background-color: rgba(18, 18, 22, 0.88);
   backdrop-filter: blur(14px);
@@ -76,6 +78,10 @@
   align-items: center;
   justify-content: space-between;
   height: 76px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Logotipo Tipográfico Comercial */
@@ -85,6 +91,8 @@
   gap: 0.65rem;
   font-family: var(--font-heading);
   text-decoration: none;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .logo-icon {
@@ -747,8 +755,8 @@
 
 .about-stamp {
   position: absolute;
-  top: -20px;
-  right: -20px;
+  top: -10px;
+  right: -5px;
   width: 120px;
   height: 120px;
   background-color: var(--color-orange-primary);

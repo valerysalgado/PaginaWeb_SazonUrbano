@@ -31,6 +31,7 @@
     top: 76px;
     left: 0;
     width: 100%;
+    max-width: 100%;
     height: calc(100vh - 76px);
     background-color: rgba(15, 15, 18, 0.98);
     backdrop-filter: blur(20px);
@@ -40,7 +41,9 @@
     padding: 2.5rem var(--container-padding);
     gap: 1.5rem;
     transform: translateX(-100%);
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
     border-top: 1px solid var(--color-black-border);
     overflow-y: auto;
     z-index: var(--z-header);
@@ -48,6 +51,8 @@
 
   .nav-menu.is-open {
     transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .nav-link {
@@ -130,7 +135,39 @@
 @media (max-width: 768px) {
   :root {
     --section-spacing: 3.5rem;
-    --container-padding: 1.25rem;
+    --container-padding: 1rem;
+  }
+
+  .site-header {
+    overflow-x: clip;
+  }
+
+  .header-inner {
+    height: 68px;
+    gap: 0.5rem;
+  }
+
+  .nav-menu {
+    top: 68px;
+    height: calc(100vh - 68px);
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+
+  .logo-title {
+    font-size: 1.25rem;
+  }
+
+  .logo-subtitle {
+    font-size: 0.62rem;
+  }
+
+  .header-actions {
+    gap: 0.45rem;
   }
 
   .section-header {
@@ -315,18 +352,48 @@
 
 /* --- TELÉFONOS PEQUEÑOS (Hasta 520px) --- */
 @media (max-width: 520px) {
+  :root {
+    --container-padding: 0.85rem;
+  }
+
+  .header-inner {
+    height: 64px;
+    gap: 0.35rem;
+  }
+
+  .logo {
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1.05rem;
+  }
+
+  .logo-title {
+    font-size: 1.12rem;
+  }
+
+  .logo-subtitle {
+    display: none; /* Se oculta para liberar espacio horizontal y evitar cualquier desborde */
+  }
+
   .header-actions {
-    gap: 0.4rem;
+    gap: 0.35rem;
   }
 
   .header-cart-btn {
-    padding: 0.45rem 0.65rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+    gap: 0.3rem;
   }
 
   .header-whatsapp-btn {
-    padding: 0.45rem 0.75rem;
-    font-size: 0.78rem;
-    gap: 0.35rem;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.75rem;
+    gap: 0.25rem;
   }
 
   .header-whatsapp-btn .header-btn-label {
@@ -339,8 +406,10 @@
   }
 
   .btn-mobile-toggle {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    flex-shrink: 0;
   }
 }
 
@@ -356,7 +425,7 @@
   }
 
   .filter-btn {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.85rem;
     font-size: var(--text-xs);
   }
 
@@ -365,7 +434,7 @@
   }
 
   .product-body {
-    padding: 1.25rem;
+    padding: 1.15rem;
   }
 
   .product-header {
@@ -374,11 +443,11 @@
   }
 
   .about-stamp {
-    width: 90px;
-    height: 90px;
-    font-size: 0.65rem;
-    top: -10px;
-    right: -10px;
+    width: 80px;
+    height: 80px;
+    font-size: 0.62rem;
+    top: 10px;
+    right: 10px; /* Contenido estrictamente dentro de la tarjeta */
   }
 
   .modal-card {
@@ -391,5 +460,28 @@
 
   .modal-actions .btn {
     width: 100%;
+  }
+}
+
+/* --- PANTALLAS ULTRA ESTRECHAS (Hasta 375px) --- */
+@media (max-width: 375px) {
+  :root {
+    --container-padding: 0.65rem;
+  }
+
+  .header-inner {
+    gap: 0.25rem;
+  }
+
+  .logo-title {
+    font-size: 1.05rem;
+  }
+
+  .header-whatsapp-btn::after {
+    display: none; /* En pantallas súper estrechas solo muestra el ícono 💬 para 0 desborde */
+  }
+
+  .header-whatsapp-btn {
+    padding: 0.35rem 0.45rem;
   }
 }

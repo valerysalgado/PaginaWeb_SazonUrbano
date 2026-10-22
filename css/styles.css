@@ -14,6 +14,9 @@ html {
   scroll-padding-top: 90px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 body {
@@ -21,7 +24,9 @@ body {
   background-color: var(--color-black-carbon);
   color: var(--color-text-body);
   line-height: 1.65;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
   position: relative;
   min-height: 100vh;
 }
@@ -82,6 +87,13 @@ ul, ol {
   margin-right: auto;
   padding-left: var(--container-padding);
   padding-right: var(--container-padding);
+  box-sizing: border-box;
+}
+
+main {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Secciones espaciadas con elegancia */
@@ -89,6 +101,10 @@ ul, ol {
   padding-top: var(--section-spacing);
   padding-bottom: var(--section-spacing);
   position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .section-dark {
